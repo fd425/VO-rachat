@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CAC or CAB - Rachat Cash de Votre Voiture</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f7f7f7; }
+    h1 { color: #333; }
+    form { background: white; padding: 20px; border-radius: 8px; max-width: 600px; margin: auto; }
+    input, select { width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 5px; border: 1px solid #ccc; }
+    label { font-weight: bold; }
+    .photos label { display: block; margin-bottom: 5px; }
+    button { padding: 12px; background-color: #0052cc; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    button:hover { background-color: #003d99; }
+    #estimation { background-color: #e6ffe6; padding: 15px; margin-top: 20px; border: 1px solid #00b300; border-radius: 5px; display: none; }
+    .whatsapp-link { margin-top: 20px; display: block; text-align: center; }
+    .whatsapp-link a { background-color: #25D366; color: white; padding: 12px 20px; border-radius: 5px; text-decoration: none; font-weight: bold; display: inline-block; }
+    .whatsapp-link a:hover { background-color: #1ebd5a; }
+  </style>
+</head>
+<body>
+  <h1>Estimez votre voiture en 2 minutes</h1>
+  <form id="carForm">
+    <label>Immatriculation :</label>
+    <input type="text" name="immat" required>
+
+    <label>Kilométrage :</label>
+    <input type="number" name="km" required>
+
+    <label>État général :</label>
+    <select name="etat" required>
+      <option value="Très bon">Très bon</option>
+      <option value="Bon">Bon</option>
+      <option value="Moyen">Moyen</option>
+      <option value="Mauvais">Mauvais</option>
+    </select>
+
+    <div class="photos">
+      <label>Photo arrière gauche :</label>
+      <input type="file" name="photo_ar_gauche" accept="image/*" required>
+
+      <label>Photo arrière droite :</label>
+      <input type="file" name="photo_ar_droite" accept="image/*" required>
+
+      <label>Photo avant gauche :</label>
+      <input type="file" name="photo_av_gauche" accept="image/*" required>
+
+      <label>Photo avant droite :</label>
+      <input type="file" name="photo_av_droite" accept="image/*" required>
+
+      <label>Intérieur avant :</label>
+      <input type="file" name="interieur_avant" accept="image/*" required>
+
+      <label>Intérieur arrière :</label>
+      <input type="file" name="interieur_arriere" accept="image/*" required>
+    </div>
+
+    <label>Téléphone :</label>
+    <input type="tel" name="telephone" required>
+
+    <label>Email :</label>
+    <input type="email" name="email" required>
+
+    <button type="submit">Estimer ma voiture</button>
+  </form>
+
+  <div id="estimation">
+    <h3>Estimation instantanée :</h3>
+    <p id="estimationResult"></p>
+    <p><strong>Important :</strong> Cette estimation est indicative. Elle sera confirmée par téléphone après étude des photos et des informations transmises.</p>
+    <p>Un conseiller vous contactera bientôt pour valider l'offre ou vous proposer une alternative de mise en vente.</p>
+  </div>
+
+  <div class="whatsapp-link">
+    <a href="https://wa.me/33782284671" target="_blank">📞 Contacter un conseiller via WhatsApp</a>
+  </div>
+
+  <script>
+    document.getElementById('carForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const formData = new FormData(event.target);
+      const km = parseInt(formData.get('km'));
+      const etat = formData.get('etat');
+
+      let base = 5000;
+      if (etat === 'Très bon') base += 1000;
+      if (etat === 'Bon') base += 500;
+      if (etat === 'Moyen') base -= 300;
+      if (etat === 'Mauvais') base -= 800;
+
+      const coef = km < 80000 ? 1.1 : km < 150000 ? 1.0 : 0.85;
+      const minPrice = Math.round(base * coef * 0.95);
+      const maxPrice = Math.round(base * coef * 1.05);
+
+      document.getElementById('estimationResult').textContent = `Votre véhicule est estimé entre ${minPrice.toLocaleString()} € et ${maxPrice.toLocaleString()} € TTC.`;
+      document.getElementById('estimation').style.display = 'block';
+
+      fetch('https://formspree.io/f/mldbjyae', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Accept': 'application/json'
+        }
+      }).then(response => console.log('Form submitted')).catch(error => console.error(error));
+    });
+  </script>
+</body>
+</html>
